@@ -1,9 +1,9 @@
 import FreeCAD as App
 import FreeCADGui as Gui
 from PySide import QtCore, QtGui
-#from FreeCAD.Qt import translate
-from DraftTools import translate
-#FreeCAD.Console.PrintMessage(translate("context", "My text") + "\n")
+from FreeCAD import Qt
+
+#FreeCAD.Console.PrintMessage(Qt.translate("context", "My text") + "\n")
 
 def QT_TRANSLATE_NOOP(context, text):
     return text
@@ -22,7 +22,7 @@ class Step:
     without one.
     '''
     def __init__(self,obj,command):
-        obj.Label = translate('TutorialWB','Step')
+        obj.Label = Qt.translate('TutorialWB','Step')
         obj.addProperty(
             'App::PropertyString',
             'Instruction',
@@ -59,7 +59,7 @@ class Tutorial:
     plus some overall information (e.g., author, version).
     '''
     def __init__(self,obj):
-        obj.Label = translate('TutorialWB','Tutorial')
+        obj.Label = Qt.translate('TutorialWB','Tutorial')
         obj.addProperty(
             'App::PropertyString',
             'Author',
@@ -111,7 +111,7 @@ class Tutorial:
                     obj.addObject(step)
         else:
             #replace with selection dialog eventually
-            FreeCAD.Console.PrintError(translate('No tutorial selected'))
+            FreeCAD.Console.PrintError(Qt.translate('No tutorial selected'))
 
     def convertMacro(macroStr):
         '''
