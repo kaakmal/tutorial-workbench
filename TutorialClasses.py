@@ -140,9 +140,3 @@ class Tutorial:
             elif '#' not in line and len(line) > 1:
                 step=Step.create(line)
                 Gui.Selection.getSelection()[0].addObject(step)
-
-commandStrings=importMacro()
-Tutorial.convertMacro(strlist)
-
-                    
-
