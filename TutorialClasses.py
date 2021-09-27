@@ -8,7 +8,7 @@ from FreeCAD import Qt
 def QT_TRANSLATE_NOOP(context, text):
     return text
 
-def importMacro():
+def import_macro():
     '''Gets path and reads macro as list of strings'''
     #Currently hardcoded–will fix when I learn PySide & can create dialog
     TEST_PATH='/Users/Katy/Library/Preferences/FreeCAD/Macro/Test.FCMacro'
@@ -98,7 +98,7 @@ class Tutorial:
         obj = App.ActiveDocument.addObject('App::DocumentObjectGroupPython',obj_name)
         Tutorial(obj)
 
-    def addStep(command):
+    def add_step(command):
         '''
         Adds step to selected tutorial, will add step to all selected tutorials if
         multiple are selected.
