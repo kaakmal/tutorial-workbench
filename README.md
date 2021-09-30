@@ -9,7 +9,6 @@ This is very much a work in progress right now.
 * Can convert tutorial to QWizard that is playable
 * Can play QWizard
 ## Next Steps:
-* Load dialog for tutorial
 * Create workbench buttons/interface
 * Record commands in a way that is actually usable for highlighting GUI elements
 * Make GUI elements highlight
