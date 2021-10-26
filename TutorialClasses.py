@@ -31,12 +31,12 @@ class Step:
                 'App::Property',
                 'Instructions to user for this step')).Instruction=''
         obj.addProperty(
-            'App::PropertyString',
+            'App::PropertyStringList',
             'Command',
             'Step',
             QT_TRANSLATE_NOOP(
                 'App::Property',
-                'Gui or console command user should enter')).Command=command
+                'Gui or console command user should enter')).Command=[command]
         obj.addProperty(
             'App::PropertyString',
             'Cluster',
