@@ -1,17 +1,27 @@
 # tutorial-workbench
 Create and run tutorials in FreeCAD
 
-This is very much a work in progress right now.  
+
+This is very much a work in progress right now. It does technically work now, but it's not at a level to make it worth seriously using for a tutorial yet.  
+
 ## Current State:
 * Base classes for tutorial functionality established
 * Can add new steps to tutorials
 * Can add information to tutorial via tree (eg, instructions, author name, FreeCAD version)
-* Can make playable QWizard from tutorial
+* Can convert tutorial to QWizard that is playable
+* Can play QWizard
+* Multi-command steps now possible
 ## Next Steps:
-* Load dialog for tutorial
-* Play command for Qwizard
+* Create workbench buttons/interface
+* Record commands in a way that is actually usable for highlighting GUI elements
+* Make GUI elements highlight
 ## Later Steps:
-* Buttons for workbench
+* Automatically record version/language info
+* Have tutorial highlight part features (e.g., faces, edges)
+* Show where to click with cursor
+* Have option to show keyboard shortcuts
 * Add hints
-* Make hints conditionally shown
-* Be able to save PDF of tutorial
+* Make hints show up conditionally based on user actions
+* Be able to export PDF of tutorial
+* Make tutorial automatically advance when step successfully completed
+
