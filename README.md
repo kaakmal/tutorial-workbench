@@ -1,7 +1,9 @@
 # tutorial-workbench
 Create and run tutorials in FreeCAD
 
+
 This is very much a work in progress right now. It does technically work now, but it's not at a level to make it worth seriously using for a tutorial yet.  
+
 ## Current State:
 * Base classes for tutorial functionality established
 * Can add new steps to tutorials
@@ -22,3 +24,4 @@ This is very much a work in progress right now. It does technically work now, bu
 * Make hints show up conditionally based on user actions
 * Be able to export PDF of tutorial
 * Make tutorial automatically advance when step successfully completed
+
