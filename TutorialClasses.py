@@ -102,6 +102,7 @@ class Tutorial:
         Adds step to selected tutorial, will add step to all selected tutorials if
         multiple are selected.
         '''
+        QApplication.installEventFilter(EventFilter)
         step = Step.create(command)
         if Gui.Selection.hasSelection():
             selected=Gui.Selection.getSelection()
@@ -113,10 +114,5 @@ class Tutorial:
             #FreeCAD.Console.PrintError(Qt.translate('No tutorial selected'))
             App.Console.PrintMessage(Qt.translate('TutorialWB','No tutorial selected \n'))
 
-class Observer:
-    def __init__(self,callback):
-        self.msgcb=callback
-
-    def slotCreatedObject(self,obj):
-        #should probably make own cmd function for things all will need
-        command={'WB': workbench, 'Obs': 'Doc', 'Type': 'addObject'
+class EventFilter:
+    return False
