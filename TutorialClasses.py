@@ -86,7 +86,7 @@ class Tutorial:
             'Tutorial',
             QT_TRANSLATE_NOOP(
                 'App::Property',
-                'List of modules imported by macro & required for model'
+                'List of modules imported by author & required for model'
                 )).RequiredModules=['FreeCAD']
         obj.Proxy = self
 
@@ -138,13 +138,14 @@ def EventFilter(self, obj, event):
         }
     handler = events.get(event.type())
     handler(object, event)
+    #keeps events from getting eaten by filter
     return False
 
 def record_shortcut(obj, event):
     keys=QtGui.QShortcutEvent.key()
-    command ={
+    command = {
         'Type': 'Shortcut',
-        'Value': keys
+        'Value': keys,
         }
     return command
 
@@ -152,7 +153,14 @@ def track_widget(obj, event):
     print "track_widget called"
 
 def record_keypress(obj, event):
-    print "record keypress called"
+    focus=QtGui.QApplication.focusWidget()
+    key=QtGui.QKeyEvent.key()
+    command = {
+        'Type': 'Keypress',
+        'Value': key,
+        'Focus': focus,
+        }
+    return command
 
 def record_keyrelease(obj, event):
     print "record keyrelease called"
