@@ -163,7 +163,14 @@ def record_keypress(obj, event):
     return command
 
 def record_keyrelease(obj, event):
-    print "record keyrelease called"
+    focus=QtGui.QApplication.focusWidget()
+    key=QtGui.QKeyEvent.key()
+    command = {
+        'Type': 'Keyrelease',
+        'Value': key,
+        'Focus': focus,
+        }
+    return command
 
 def record_dblclick(obj,event):
     print "record double click called"
