@@ -113,7 +113,7 @@ class Tutorial:
             #FreeCAD.Console.PrintError(Qt.translate('No tutorial selected'))
             App.Console.PrintMessage(Qt.translate('TutorialWB','No tutorial selected \n'))
 
-class ActionRecorder(QObject):
+class ActionRecorder(QtCore.QObject):
     '''
     Records user inputs to put into steps of tutorial using Qt event filter
     '''
@@ -121,65 +121,72 @@ class ActionRecorder(QObject):
         #Probably doesn't work–need to figure out what's up with "protected"
         QApplication.installEventFilter(EventFilter)
 
-def EventFilter(self, obj, event):
-    '''
-    Listens in to user input, copies & sends on to be saved as steps
-    '''
-    #may want to map some of these to the same function
-    events = {
-        'QEvent.Shortcut': record_shortcut,
-        'QEvent.Enter': track_widget,
-        'QEvent.KeyPress': record_keypress,
-        'QEvent.KeyRelease': record_keyrelease,
-        'QEvent.MouseButtonDblClick': record_dblclick,
-        'QEvent.MouseButtonPress': record_mouse_press,
-        'QEvent.MouseButtonRelease': record_mouse_release,
-        'QEvent.MouseMove': record_mouse_move
-        }
-    handler = events.get(event.type())
-    handler(object, event)
-    #keeps events from getting eaten by filter
-    return False
+    def EventFilter(self, obj, event):
+        '''
+        Listens in to user input, copies & sends on to be saved as steps
+        '''
+        #may want to map some of these to the same function
+        events = {
+            'QEvent.Shortcut': record_shortcut,
+            'QEvent.KeyPress': record_keypress,
+            'QEvent.KeyRelease': record_keyrelease,
+            'QEvent.MouseButtonDblClick': record_dblclick,
+            'QEvent.MouseButtonPress': record_mouse_press,
+            'QEvent.MouseButtonRelease': record_mouse_release,
+            'QEvent.MouseMove': record_mouse_move
+            }
+        handler = events.get(event.type())
+        handler(object, event)
+        #keeps events from getting eaten by filter
+        return False
 
-def record_shortcut(obj, event):
-    keys=QtGui.QShortcutEvent.key()
-    command = {
-        'Type': 'Shortcut',
-        'Value': keys,
-        }
-    return command
+    def record_shortcut(obj, event):
+        keys=QtGui.QShortcutEvent.key()
+        key2=QtGui.QShortcutEvent.key(event)
+        key3=event.key
+        command = {
+            'Type': 'Shortcut',
+            'Value': keys,
+            'Value2': key2,
+            'Value3': key3,
+            }
+        return command
 
-def track_widget(obj, event):
-    print "track_widget called"
+    def record_keypress(obj, event):
+        focus=QtGui.QApplication.focusWidget()
+        key=QtGui.QKeyEvent.key()
+        command = {
+            'Type': 'Keypress',
+            'Value': key,
+            'Focus': focus,
+            }
+        return command
 
-def record_keypress(obj, event):
-    focus=QtGui.QApplication.focusWidget()
-    key=QtGui.QKeyEvent.key()
-    command = {
-        'Type': 'Keypress',
-        'Value': key,
-        'Focus': focus,
-        }
-    return command
+    def record_keyrelease(obj, event):
+        focus=QtGui.QApplication.focusWidget()
+        key=QtGui.QKeyEvent.key()
+        command = {
+            'Type': 'Keyrelease',
+            'Value': key,
+            'Focus': focus,
+            }
+        return command
 
-def record_keyrelease(obj, event):
-    focus=QtGui.QApplication.focusWidget()
-    key=QtGui.QKeyEvent.key()
-    command = {
-        'Type': 'Keyrelease',
-        'Value': key,
-        'Focus': focus,
-        }
-    return command
+    def record_dblclick(obj,event):
+        print("record double click called")
 
-def record_dblclick(obj,event):
-    print "record double click called"
+    def record_mousepress(obj,event):
+        focus=QtGui.QApplication.focusWidget()
+        localPos=QtGui.QMouseEvent.position()
+        button=QtGui.QMouseEvent
+        command = {
+            'Type': 'Mousepress',
+            'Position': localPos,
+            'Focus': focus,
+            }
 
-def record_mousepress(obj,event):
-    print "mouse press called"
+    def record_mouse_release(obj,event):
+        print("mouse release called")
 
-def record_mouse_release(obj,event):
-    print "mouse release called"
-
-def record_mouse_move(obj, event):
-    print "mouse moved. Did not leave forwarding address"
+    def record_mouse_move(obj, event):
+        print("mouse moved. Did not leave forwarding address")
