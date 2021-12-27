@@ -119,7 +119,7 @@ class ActionRecorder(QtCore.QObject):
     '''
     def __init__(self):
         #Probably doesn't work–need to figure out what's up with "protected"
-        QApplication.installEventFilter(EventFilter)
+        Gui.getMainWindow().installEventFilter(EventFilter)
 
     def EventFilter(self, obj, event):
         '''
