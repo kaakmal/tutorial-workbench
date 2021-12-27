@@ -117,9 +117,6 @@ class ActionRecorder(QtCore.QObject):
     '''
     Records user inputs to put into steps of tutorial using Qt event filter
     '''
-    def __init__(self):
-        #Probably doesn't work–need to figure out what's up with "protected"
-        Gui.getMainWindow().installEventFilter(EventFilter)
 
     def EventFilter(self, obj, event):
         '''
@@ -136,6 +133,7 @@ class ActionRecorder(QtCore.QObject):
             'QEvent.MouseMove': record_mouse_move
             }
         handler = events.get(event.type())
+        print(handler)
         handler(object, event)
         #keeps events from getting eaten by filter
         return False
@@ -190,3 +188,7 @@ class ActionRecorder(QtCore.QObject):
 
     def record_mouse_move(obj, event):
         print("mouse moved. Did not leave forwarding address")
+
+def make_recorder():
+    recorder=ActionRecorder()
+    Gui.getMainWindow().installEventFilter(recorder)
