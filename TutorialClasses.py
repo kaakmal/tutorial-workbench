@@ -1,6 +1,6 @@
 import FreeCAD as App
 import FreeCADGui as Gui
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtGui
 from FreeCAD import Qt
 
 #FreeCAD.Console.PrintMessage(translate("context", "My text") + "\n")
@@ -109,7 +109,6 @@ class Tutorial:
                 if hasattr(obj,'addObject'):
                     obj.addObject(step)
         else:
-            #allow selecting object to 
             #FreeCAD.Console.PrintError(Qt.translate('No tutorial selected'))
             App.Console.PrintMessage(Qt.translate('TutorialWB','No tutorial selected \n'))
 
@@ -117,12 +116,20 @@ class ActionRecorder(QtCore.QObject):
     '''
     Records user inputs to put into steps of tutorial using Qt event filter
     '''
-
-    def EventFilter(self, obj, event):
+    def __init__(self, parent=None):
+        super(ActionRecorder, self).__init__(parent)
+        print("init instance")
+    def __del__(self):
+        print("delete instance")
+    def eventFilter(self, obj, event):
         '''
         Listens in to user input, copies & sends on to be saved as steps
+        The name of this function needs to be _exactly_ what it currently is
+        or it won't work.
         '''
         #may want to map some of these to the same function
+        print("eF")
+        print(event)
         events = {
             'QEvent.Shortcut': record_shortcut,
             'QEvent.KeyPress': record_keypress,
@@ -191,4 +198,7 @@ class ActionRecorder(QtCore.QObject):
 
 def make_recorder():
     recorder=ActionRecorder()
-    Gui.getMainWindow().installEventFilter(recorder)
+    QtGui.QApplication.instance().installEventFilter(recorder)
+    print("Recorder installed")
+    return recorder
+
