@@ -1,12 +1,15 @@
 import FreeCAD as App
 import FreeCADGui as Gui
-from PySide2 import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 from FreeCAD import Qt
+
+import time
 
 #FreeCAD.Console.PrintMessage(translate("context", "My text") + "\n")
 
 def QT_TRANSLATE_NOOP(context, text):
     return text
+
 
 class Step:
     '''
@@ -42,7 +45,6 @@ class Step:
         obj = App.ActiveDocument.addObject('App::FeaturePython','Step')
         Step(obj,command)
         return obj
-
 
 
 class Tutorial:
@@ -112,6 +114,7 @@ class Tutorial:
             #FreeCAD.Console.PrintError(Qt.translate('No tutorial selected'))
             App.Console.PrintMessage(Qt.translate('TutorialWB','No tutorial selected \n'))
 
+
 class ActionRecorder(QtCore.QObject):
     '''
     Records user inputs to put into steps of tutorial using Qt event filter
@@ -119,36 +122,42 @@ class ActionRecorder(QtCore.QObject):
     def __init__(self, parent=None):
         super(ActionRecorder, self).__init__(parent)
         print("init instance")
+        
     def __del__(self):
         print("delete instance")
+        
     def eventFilter(self, obj, event):
         '''
         Listens in to user input, copies & sends on to be saved as steps
         The name of this function needs to be _exactly_ what it currently is
-        or it won't work.
+        and have as little functionality as possible or it won't work.
         '''
-        #may want to map some of these to the same function
-        print("eF")
-        print(event)
-        events = {
-            'QEvent.Shortcut': record_shortcut,
-            'QEvent.KeyPress': record_keypress,
-            'QEvent.KeyRelease': record_keyrelease,
-            'QEvent.MouseButtonDblClick': record_dblclick,
-            'QEvent.MouseButtonPress': record_mouse_press,
-            'QEvent.MouseButtonRelease': record_mouse_release,
-            'QEvent.MouseMove': record_mouse_move
-            }
-        handler = events.get(event.type())
-        print(handler)
-        handler(object, event)
+        events = [QtCore.QEvent.Shortcut,QtCore.QEvent.KeyPress,
+                  QtCore.QEvent.KeyRelease,QtCore.QEvent.MouseButtonDblClick,
+                  QtCore.QEvent.MouseButtonPress,QtCore.QEvent.MouseButtonRelease,
+                  ]
+        if event.type() in events:
+            #Keeping eventFilter lightweight
+            ActionRecorder.handle_filter(event)
         #keeps events from getting eaten by filter
         return False
 
-    def record_shortcut(obj, event):
-        keys=QtGui.QShortcutEvent.key()
-        key2=QtGui.QShortcutEvent.key(event)
-        key3=event.key
+    def handle_filter(event):
+        #may want to map some of these to the same function
+        events = {
+            QtCore.QEvent.Shortcut: ActionRecorder.record_shortcut,
+            QtCore.QEvent.KeyPress: ActionRecorder.record_keypress,
+            QtCore.QEvent.KeyRelease: ActionRecorder.record_keyrelease,
+            QtCore.QEvent.MouseButtonDblClick: ActionRecorder.record_dblclick,
+            QtCore.QEvent.MouseButtonPress: ActionRecorder.record_mouse_press,
+            QtCore.QEvent.MouseButtonRelease: ActionRecorder.record_mouse_release,
+            #'QEvent.MouseMove': record_mouse_move
+            }
+        events.get(event.type())(event)
+
+    def record_shortcut(event):
+        print('a')
+        key3=event.key()
         command = {
             'Type': 'Shortcut',
             'Value': keys,
@@ -157,9 +166,10 @@ class ActionRecorder(QtCore.QObject):
             }
         return command
 
-    def record_keypress(obj, event):
-        focus=QtGui.QApplication.focusWidget()
-        key=QtGui.QKeyEvent.key()
+    def record_keypress(event):
+        print('b')
+        focus=QtWidgets.QApplication.focusWidget()
+        key=event.key()
         command = {
             'Type': 'Keypress',
             'Value': key,
@@ -167,9 +177,10 @@ class ActionRecorder(QtCore.QObject):
             }
         return command
 
-    def record_keyrelease(obj, event):
-        focus=QtGui.QApplication.focusWidget()
-        key=QtGui.QKeyEvent.key()
+    def record_keyrelease(event):
+        print('c')
+        focus=QtWidgets.QApplication.focusWidget()
+        key=event.key()
         command = {
             'Type': 'Keyrelease',
             'Value': key,
@@ -177,28 +188,51 @@ class ActionRecorder(QtCore.QObject):
             }
         return command
 
-    def record_dblclick(obj,event):
+    def record_dblclick(event):
+        print('d')
         print("record double click called")
 
-    def record_mousepress(obj,event):
-        focus=QtGui.QApplication.focusWidget()
-        localPos=QtGui.QMouseEvent.position()
-        button=QtGui.QMouseEvent
+    def record_mouse_press(event):
+        print('f')
+        focus=QtWidgets.QApplication.focusWidget()
+        localPos=event.localPos()
+        button=event.button()
         command = {
             'Type': 'Mousepress',
             'Position': localPos,
             'Focus': focus,
             }
 
-    def record_mouse_release(obj,event):
+    def record_mouse_release(event):
         print("mouse release called")
+        focus=QtWidgets.QApplication.focusWidget()
+        #Unclear which is needed right now
+        localPos=event.localPos()
+        windowPos=event.windowPos()
+        button=event.button()
+        command = {
+            'Type': 'Mousepress',
+            'Position': localPos,
+            'Focus': focus,
+            }
 
-    def record_mouse_move(obj, event):
+    def record_mouse_move(event):
         print("mouse moved. Did not leave forwarding address")
+        focus=QtWidgets.QApplication.focusWidget()
+        localPos=event.localPos()
+        button=event.button()
+        command = {
+            'Type': 'Mousepress',
+            'Position': localPos,
+            'Focus': focus,
+            }
 
+    
 def make_recorder():
     recorder=ActionRecorder()
-    QtGui.QApplication.instance().installEventFilter(recorder)
+    QtWidgets.QApplication.instance().installEventFilter(recorder)
     print("Recorder installed")
     return recorder
 
+def delete_recorder(recorder):
+    QtWidgets.QApplication.instance().removeEventFilter(recorder)
