@@ -181,5 +181,6 @@ class CommandSelection:
 
     @QtCore.Slot(dict)
     def add_command(command):
+        self.form.Commands.addItem(command)
         print(command)
     
