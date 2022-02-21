@@ -1,6 +1,6 @@
 import FreeCAD as App
 import FreeCADGui as Gui
-from PySide import QtCore, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 from FreeCAD import Qt
 
 import TutorialClasses
@@ -183,4 +183,8 @@ class CommandSelection:
     def add_command(command):
         self.form.Commands.addItem(command)
         print(command)
-    
+        
+    def command_to_step():
+        stepCommands=self.form.Commands.selectedItems()
+        step=TutorialClasses.Step.create(stepCommands)
+        self.form.Steps.addItem(step)

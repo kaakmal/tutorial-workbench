@@ -98,12 +98,11 @@ class Tutorial:
         obj = App.ActiveDocument.addObject('App::DocumentObjectGroupPython',obj_name)
         Tutorial(obj)
 
-    def add_step(command):
+    def add_step(step):
         '''
         Adds step to selected tutorial, will add step to all selected tutorials if
         multiple are selected.
         '''
-        step = Step.create(command)
         if Gui.Selection.hasSelection():
             selected=Gui.Selection.getSelection()
             for obj in selected:
