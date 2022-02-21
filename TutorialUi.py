@@ -174,6 +174,8 @@ def delete_recorder(recorder):
 class CommandSelection:
     ui_path = os.path.join(os.path.dirname(__file__), "CommandSelection.ui")
     self.form = FreeCADGui.PySideUic.loadUi(ui_path)
+    self.form.addCommand.clicked.connect(command_to_step)
+    self.form.addStep.clicked.connect(step_to_tutorial)
 
     def record_commands():
         ui=CommandSelection()
@@ -188,3 +190,10 @@ class CommandSelection:
         stepCommands=self.form.Commands.selectedItems()
         step=TutorialClasses.Step.create(stepCommands)
         self.form.Steps.addItem(step)
+
+    def step_to_tutorial():
+        stepList=self.form.Steps.selectedItems()
+        for step in stepList:
+            TutorialClasses.add_step(step)
+        
+cs=CommandSelection()
