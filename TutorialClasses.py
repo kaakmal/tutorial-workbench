@@ -1,6 +1,5 @@
 import FreeCAD as App
 import FreeCADGui as Gui
-from PySide2 import QtCore, QtWidgets, QtGui
 from FreeCAD import Qt
 
 import time
