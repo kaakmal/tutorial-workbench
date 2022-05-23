@@ -3,14 +3,14 @@ import FreeCADGui as Gui
 from PySide2 import QtCore, QtWidgets, QtGui
 from FreeCAD import Qt
 
+import os
 import TutorialClasses
 
-import os
 def QT_TRANSLATE_NOOP(context,text):
     return text
 
 
-class TutorialUi(QtGui.QWizard):
+class TutorialUi(QtWidgets.QWizard):
     '''Creates QWizard that will function as tutorial instructions'''
     def __init__(self):
         super(TutorialUi,self).__init__()
@@ -50,9 +50,14 @@ class ActionRecorder(QtCore.QObject):
     '''
     Records user inputs to put into steps of tutorial using Qt event filter
     '''
-    newItem=QtCore.Signal(dict)
+    class PassCommand(QtCore.QObject):
+        newItem=QtCore.Signal(dict)
+    
     def __init__(self, parent=None):
-        super(ActionRecorder, self).__init__(parent)
+        super(ActionRecorder,self).__init__(parent)
+        signal=self.PassCommand()
+        self.newItem=signal.newItem
+        signal.newItem.connect(CommandSelection.add_command)
         print("init instance")
         
     def __del__(self):
@@ -70,11 +75,11 @@ class ActionRecorder(QtCore.QObject):
                   ]
         if event.type() in events:
             #Keeping eventFilter lightweight
-            ActionRecorder.handle_filter(event)
+            ActionRecorder.handle_filter(event,self.newItem)
         #keeps events from getting eaten by filter
         return False
 
-    def handle_filter(self, event):
+    def handle_filter(event,signal):
         #may want to map some of these to the same function
         events = {
             QtCore.QEvent.Shortcut: ActionRecorder.record_shortcut,
@@ -86,7 +91,7 @@ class ActionRecorder(QtCore.QObject):
             #'QEvent.MouseMove': record_mouse_move
             }
         command=events.get(event.type())(event)
-        self.newItem.emit(command)
+        signal.emit(command)
         
 
     def record_shortcut(event):
@@ -172,14 +177,19 @@ def delete_recorder(recorder):
 
 
 class CommandSelection:
-    ui_path = os.path.join(os.path.dirname(__file__), "CommandSelection.ui")
-    self.form = FreeCADGui.PySideUic.loadUi(ui_path)
-    self.form.addCommand.clicked.connect(command_to_step)
-    self.form.addStep.clicked.connect(step_to_tutorial)
+    def __init__(self):
+        ui_path = os.path.join(os.path.dirname(__file__), "CommandSelection.ui")
+        self.form = Gui.PySideUic.loadUi(ui_path)
+        self.form.addCommand.clicked.connect(CommandSelection.command_to_step)
+        self.form.addStep.clicked.connect(CommandSelection.step_to_tutorial)
 
     def record_commands():
         ui=CommandSelection()
         recorder=make_recorder()
+        #recorder=ActionRecorder()
+        #QtWidgets.QApplication.instance().installEventFilter(recorder)
+        print("Recorder installed")
+        return recorder
 
     @QtCore.Slot(dict)
     def add_command(command):
@@ -196,4 +206,4 @@ class CommandSelection:
         for step in stepList:
             TutorialClasses.add_step(step)
         
-cs=CommandSelection()
+#cs=CommandSelection.record_commands()
