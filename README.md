@@ -1,6 +1,6 @@
 # tutorial-workbench
 Create and run tutorials in FreeCAD
-
+Requires v 0.20
 
 This is very much a work in progress right now. It does technically work now, but it's not at a level to make it worth seriously using for a tutorial yet.  
 
@@ -11,6 +11,7 @@ This is very much a work in progress right now. It does technically work now, bu
 * Can convert tutorial to QWizard that is playable
 * Can play QWizard
 * Multi-command steps now possible
+* Data collected in event recorder can be sent to other functions via signal-slot mechanism
 ## Next Steps:
 * Create workbench buttons/interface
 * Record commands in a way that is actually usable for highlighting GUI elements
