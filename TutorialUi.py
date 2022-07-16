@@ -6,6 +6,9 @@ from FreeCAD import Qt
 import os
 import TutorialClasses
 
+def getpath():
+    print(os.path.dirname(QtCore.__file__))
+
 def QT_TRANSLATE_NOOP(context,text):
     return text
 
@@ -58,9 +61,10 @@ class ActionRecorder(QtCore.QObject):
         signal=self.PassCommand()
         self.newItem=signal.newItem
         signal.newItem.connect(CommandSelection.add_command)
-        print("init instance")
+        App.Console.PrintLog("init ActionRecorder \n")
         
     def __del__(self):
+        super(ActionRecorder,self).__del__(parent)
         print("delete instance")
         
     def eventFilter(self, obj, event):
@@ -81,6 +85,7 @@ class ActionRecorder(QtCore.QObject):
 
     def handle_filter(event,signal):
         #may want to map some of these to the same function
+        App.Console.PrintLog(event)
         events = {
             QtCore.QEvent.Shortcut: ActionRecorder.record_shortcut,
             QtCore.QEvent.KeyPress: ActionRecorder.record_keypress,
@@ -91,11 +96,12 @@ class ActionRecorder(QtCore.QObject):
             #'QEvent.MouseMove': record_mouse_move
             }
         command=events.get(event.type())(event)
+        print(command['Type'])
         signal.emit(command)
         
 
     def record_shortcut(event):
-        print('a')
+        #print('a')
         key3=event.key()
         command = {
             'Type': 'Shortcut',
@@ -106,7 +112,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_keypress(event):
-        print('b')
+        #print('kp /n')
         focus=QtWidgets.QApplication.focusWidget()
         key=event.key()
         command = {
@@ -117,7 +123,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_keyrelease(event):
-        print('c')
+        #print('kr /n')
         focus=QtWidgets.QApplication.focusWidget()
         key=event.key()
         command = {
@@ -125,14 +131,18 @@ class ActionRecorder(QtCore.QObject):
             'Value': key,
             'Focus': focus,
             }
+        App.Console.PrintLog('kr() \n')
         return command
 
     def record_dblclick(event):
-        print('d')
-        print("record double click called")
+        #print('d /n')
+        command = {
+            'Type': 'Dblclick',
+            }
+        return command
 
     def record_mouse_press(event):
-        print('f')
+        #print('mp /n')
         focus=QtWidgets.QApplication.focusWidget()
         localPos=event.localPos()
         button=event.button()
@@ -141,9 +151,10 @@ class ActionRecorder(QtCore.QObject):
             'Position': localPos,
             'Focus': focus,
             }
+        return command
 
     def record_mouse_release(event):
-        print("mouse release called")
+        #print("mouse release called /n")
         focus=QtWidgets.QApplication.focusWidget()
         #Unclear which is needed right now
         localPos=event.localPos()
@@ -154,6 +165,7 @@ class ActionRecorder(QtCore.QObject):
             'Position': localPos,
             'Focus': focus,
             }
+        return command
 
     def record_mouse_move(event):
         print("mouse moved. Did not leave forwarding address")
@@ -165,15 +177,20 @@ class ActionRecorder(QtCore.QObject):
             'Position': localPos,
             'Focus': focus,
             }
+        return command
     
 def make_recorder():
-    recorder=ActionRecorder()
-    QtWidgets.QApplication.instance().installEventFilter(recorder)
-    print("Recorder installed")
+    '''Creates/installs qevent filter to record ui input. Calling this function
+    without assigning it to a variable crashes FreeCAD'''
+    recorder=ActionRecorder(Gui.getMainWindow())
+    Gui.getMainWindow().installEventFilter(recorder)
+    #QtWidgets.QApplication.instance().installEventFilter(recorder)
+    App.Console.PrintLog("Recorder installed \n")
     return recorder
 
 def delete_recorder(recorder):
-    QtWidgets.QApplication.instance().removeEventFilter(recorder)
+    Gui.getMainWindow().removeEventFilter(recorder)
+    #QtWidgets.QApplication.instance().removeEventFilter(recorder)
 
 
 class CommandSelection:
@@ -183,27 +200,34 @@ class CommandSelection:
         self.form.addCommand.clicked.connect(CommandSelection.command_to_step)
         self.form.addStep.clicked.connect(CommandSelection.step_to_tutorial)
 
+
     def record_commands():
+        '''Starts recording ui commands. Calling this function without assigning
+        it to a variable crashes FreeCAD'''
         ui=CommandSelection()
+        ui.form.show()
         recorder=make_recorder()
-        #recorder=ActionRecorder()
-        #QtWidgets.QApplication.instance().installEventFilter(recorder)
-        print("Recorder installed")
+        App.Console.PrintLog("ui up \n")
+
+        #This line might be removable but is currently needed to ease testing
         return recorder
 
     @QtCore.Slot(dict)
-    def add_command(command):
+    def add_command(self,command):
         self.form.Commands.addItem(command)
+        print('ac')
         print(command)
         
-    def command_to_step():
+    def command_to_step(self):
+        print(self)
         stepCommands=self.form.Commands.selectedItems()
         step=TutorialClasses.Step.create(stepCommands)
         self.form.Steps.addItem(step)
 
-    def step_to_tutorial():
+    def step_to_tutorial(self):
         stepList=self.form.Steps.selectedItems()
         for step in stepList:
             TutorialClasses.add_step(step)
         
 #cs=CommandSelection.record_commands()
+#sdkgj
