@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QListView" name="Commands">
+  <widget class="QListWidget" name="Commands">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -87,7 +87,7 @@
     <string>Add to Tutorial</string>
    </property>
   </widget>
-  <widget class="QListView" name="Steps">
+  <widget class="QListWidget" name="Steps">
    <property name="geometry">
     <rect>
      <x>255</x>

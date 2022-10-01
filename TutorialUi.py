@@ -53,19 +53,12 @@ class ActionRecorder(QtCore.QObject):
     '''
     Records user inputs to put into steps of tutorial using Qt event filter
     '''
-    class PassCommand(QtCore.QObject):
-        newItem=QtCore.Signal(dict)
     
-    def __init__(self, parent=None):
-        super(ActionRecorder,self).__init__(parent)
-        signal=self.PassCommand()
-        self.newItem=signal.newItem
-        signal.newItem.connect(CommandSelection.add_command)
+    def __init__(self):
+        #Makes window top level window
+        super(ActionRecorder, self).__init__(Gui.getMainWindow())
+        self.cs=CommandSelection()
         App.Console.PrintLog("init ActionRecorder \n")
-        
-    def __del__(self):
-        super(ActionRecorder,self).__del__(parent)
-        print("delete instance")
         
     def eventFilter(self, obj, event):
         '''
@@ -79,11 +72,11 @@ class ActionRecorder(QtCore.QObject):
                   ]
         if event.type() in events:
             #Keeping eventFilter lightweight
-            ActionRecorder.handle_filter(event,self.newItem)
+            ActionRecorder.handle_filter(self,event)
         #keeps events from getting eaten by filter
         return False
 
-    def handle_filter(event,signal):
+    def handle_filter(self,event):
         #may want to map some of these to the same function
         App.Console.PrintLog(event)
         events = {
@@ -96,8 +89,7 @@ class ActionRecorder(QtCore.QObject):
             #'QEvent.MouseMove': record_mouse_move
             }
         command=events.get(event.type())(event)
-        print(command['Type'])
-        signal.emit(command)
+        self.cs.add_command(command)
         
 
     def record_shortcut(event):
@@ -182,13 +174,14 @@ class ActionRecorder(QtCore.QObject):
 def make_recorder():
     '''Creates/installs qevent filter to record ui input. Calling this function
     without assigning it to a variable crashes FreeCAD'''
-    recorder=ActionRecorder(Gui.getMainWindow())
+    recorder=ActionRecorder()
     Gui.getMainWindow().installEventFilter(recorder)
     #QtWidgets.QApplication.instance().installEventFilter(recorder)
     App.Console.PrintLog("Recorder installed \n")
     return recorder
 
 def delete_recorder(recorder):
+    #currently failing to remove recorder ???
     Gui.getMainWindow().removeEventFilter(recorder)
     #QtWidgets.QApplication.instance().removeEventFilter(recorder)
 
@@ -212,7 +205,6 @@ class CommandSelection:
         #This line might be removable but is currently needed to ease testing
         return recorder
 
-    @QtCore.Slot(dict)
     def add_command(self,command):
         self.form.Commands.addItem(command)
         print('ac')
