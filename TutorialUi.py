@@ -77,6 +77,7 @@ class ActionRecorder(QtCore.QObject):
         return False
 
     def handle_filter(self,event):
+        '''Adds command to command list based on event type'''
         #may want to map some of these to the same function
         App.Console.PrintLog(event)
         events = {
@@ -89,10 +90,12 @@ class ActionRecorder(QtCore.QObject):
             #'QEvent.MouseMove': record_mouse_move
             }
         command=events.get(event.type())(event)
-        self.cs.add_command(command)
+        commandDictItem=self.cs.add_command(command)
+        self.cs.commands.append(commandDictItem)
         
 
     def record_shortcut(event):
+        '''Creates command dict for keyboard shortcut event'''
         #print('a')
         key3=event.key()
         command = {
@@ -104,6 +107,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_keypress(event):
+        '''Creates command dict for keypress event'''
         #print('kp /n')
         focus=QtWidgets.QApplication.focusWidget()
         key=event.key()
@@ -115,6 +119,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_keyrelease(event):
+        '''Creates command dict for key release event'''
         #print('kr /n')
         focus=QtWidgets.QApplication.focusWidget()
         key=event.key()
@@ -127,6 +132,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_dblclick(event):
+        '''Creates command dict for double click event'''
         #print('d /n')
         command = {
             'Type': 'Dblclick',
@@ -134,6 +140,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_mouse_press(event):
+        '''Creates command dict for mouse press event'''
         #print('mp /n')
         focus=QtWidgets.QApplication.focusWidget()
         localPos=event.localPos()
@@ -146,6 +153,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_mouse_release(event):
+        '''Creates command dict for mouse release event'''
         #print("mouse release called /n")
         focus=QtWidgets.QApplication.focusWidget()
         #Unclear which is needed right now
@@ -160,6 +168,7 @@ class ActionRecorder(QtCore.QObject):
         return command
 
     def record_mouse_move(event):
+        '''Creates command dict for mouse move event'''
         print("mouse moved. Did not leave forwarding address")
         focus=QtWidgets.QApplication.focusWidget()
         localPos=event.localPos()
@@ -187,11 +196,14 @@ def delete_recorder(recorder):
 
 
 class CommandSelection:
+    '''Creates UI for command selection'''
     def __init__(self):
+        self.commands={}
         ui_path = os.path.join(os.path.dirname(__file__), "CommandSelection.ui")
         self.form = Gui.PySideUic.loadUi(ui_path)
         self.form.addCommand.clicked.connect(CommandSelection.command_to_step)
         self.form.addStep.clicked.connect(CommandSelection.step_to_tutorial)
+        self.form.show()
 
 
     def record_commands():
@@ -206,17 +218,23 @@ class CommandSelection:
         return recorder
 
     def add_command(self,command):
-        self.form.Commands.addItem(command)
-        print('ac')
-        print(command)
+        '''Adds command dict to list of commands'''
+        commandName=str(command['Type'])+str(command['Focus'])
+        commandData={commandName:command}
+        self.form.Commands.addItem(commandName)
+        print("command added")
+        return commandData
+
         
     def command_to_step(self):
+        '''Makes tutorial step out of selected command'''
         print(self)
         stepCommands=self.form.Commands.selectedItems()
         step=TutorialClasses.Step.create(stepCommands)
         self.form.Steps.addItem(step)
 
     def step_to_tutorial(self):
+        '''Adds step to tutorial'''
         stepList=self.form.Steps.selectedItems()
         for step in stepList:
             TutorialClasses.add_step(step)
