@@ -223,7 +223,7 @@ class CommandSelection:
         commandData={commandName:command}
         self.form.Commands.addItem(commandName)
         print("command added")
-        return commandData
+        #return commandData
 
         
     def command_to_step(self):
