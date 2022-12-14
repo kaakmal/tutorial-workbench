@@ -57,7 +57,8 @@ class ActionRecorder(QtCore.QObject):
     def __init__(self):
         #Makes window top level window
         super(ActionRecorder, self).__init__(Gui.getMainWindow())
-        self.cs=CommandSelection()
+        self.cs=CommandSelection(self)
+        self.cs.form.show()
         App.Console.PrintLog("init ActionRecorder \n")
         
     def eventFilter(self, obj, event):
@@ -91,7 +92,7 @@ class ActionRecorder(QtCore.QObject):
             }
         command=events.get(event.type())(event)
         commandDictItem=self.cs.add_command(command)
-        self.cs.commands.append(commandDictItem)
+        self.cs.commands[commandDictItem[0]]=commandDictItem[1]
         
 
     def record_shortcut(event):
@@ -197,34 +198,23 @@ def delete_recorder(recorder):
 
 class CommandSelection:
     '''Creates UI for command selection'''
-    def __init__(self):
+    def __init__(self,recorder):
         self.commands={}
+        self.recorder=recorder
         ui_path = os.path.join(os.path.dirname(__file__), "CommandSelection.ui")
         self.form = Gui.PySideUic.loadUi(ui_path)
         self.form.addCommand.clicked.connect(CommandSelection.command_to_step)
         self.form.addStep.clicked.connect(CommandSelection.step_to_tutorial)
+        self.form.Close.clicked.connect(delete_recorder(self.recorder))
         self.form.show()
-
-
-    def record_commands():
-        '''Starts recording ui commands. Calling this function without assigning
-        it to a variable crashes FreeCAD'''
-        ui=CommandSelection()
-        ui.form.show()
-        recorder=make_recorder()
-        App.Console.PrintLog("ui up \n")
-
-        #This line might be removable but is currently needed to ease testing
-        return recorder
 
     def add_command(self,command):
         '''Adds command dict to list of commands'''
         commandName=str(command['Type'])+str(command['Focus'])
-        commandData={commandName:command}
+        commandData=[commandName,command]
         self.form.Commands.addItem(commandName)
         print("command added")
-        #return commandData
-
+        return commandData
         
     def command_to_step(self):
         '''Makes tutorial step out of selected command'''
