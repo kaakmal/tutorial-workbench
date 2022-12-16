@@ -58,7 +58,6 @@ class ActionRecorder(QtCore.QObject):
         #Makes window top level window
         super(ActionRecorder, self).__init__(Gui.getMainWindow())
         self.cs=CommandSelection(self)
-        self.cs.form.show()
         App.Console.PrintLog("init ActionRecorder \n")
         
     def eventFilter(self, obj, event):
@@ -191,8 +190,10 @@ def make_recorder():
     return recorder
 
 def delete_recorder(recorder):
-    #currently failing to remove recorder ???
+    #currently failing to remove recorder
+    #I think I'm trying to remove it from somewhere it isn't installed
     Gui.getMainWindow().removeEventFilter(recorder)
+    print("recorder deleted")
     #QtWidgets.QApplication.instance().removeEventFilter(recorder)
 
 
@@ -203,7 +204,7 @@ class CommandSelection:
         self.recorder=recorder
         ui_path = os.path.join(os.path.dirname(__file__), "CommandSelection.ui")
         self.form = Gui.PySideUic.loadUi(ui_path)
-        self.form.addCommand.clicked.connect(CommandSelection.command_to_step)
+        self.form.addCommand.clicked.connect(CommandSelection.command_to_step(self.form))
         self.form.addStep.clicked.connect(CommandSelection.step_to_tutorial)
         self.form.Close.clicked.connect(delete_recorder(self.recorder))
         self.form.show()
@@ -216,12 +217,15 @@ class CommandSelection:
         print("command added")
         return commandData
         
-    def command_to_step(self):
+    def command_to_step(form):
         '''Makes tutorial step out of selected command'''
-        print(self)
-        stepCommands=self.form.Commands.selectedItems()
-        step=TutorialClasses.Step.create(stepCommands)
-        self.form.Steps.addItem(step)
+        stepCommands=form.Commands.selectedItems()
+        print(type(stepCommands))
+        if stepCommands != []:
+            step=TutorialClasses.Step.create(stepCommands)
+            self.form.Steps.addItem(step)
+        else:
+            App.Console.PrintMessage(Qt.translate('TutorialWB','No step selected to add'))
 
     def step_to_tutorial(self):
         '''Adds step to tutorial'''
